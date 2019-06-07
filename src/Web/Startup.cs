@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.eShopWeb.ApplicationCore.Interfaces;
@@ -22,6 +23,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
@@ -49,7 +51,7 @@ namespace Microsoft.eShopWeb.Web
             //ConfigureInMemoryDatabases(services);
 
             // use real database
-             ConfigureProductionServices(services);
+            ConfigureProductionServices(services);
         }
 
         private void ConfigureInMemoryDatabases(IServiceCollection services)
@@ -90,7 +92,7 @@ namespace Microsoft.eShopWeb.Web
             ConfigureCookieSettings(services);
 
             CreateIdentityIfNotCreated(services);
-            
+
             services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
 
             services.AddScoped<ICatalogViewModelService, CachedCatalogViewModelService>();
@@ -119,9 +121,10 @@ namespace Microsoft.eShopWeb.Web
             {
                 options.Conventions.Add(new RouteTokenTransformerConvention(
                          new SlugifyParameterTransformer()));
-                
-            }
-            )
+
+                var jsonFormatters = options.InputFormatters.OfType<JsonInputFormatter>().ToList();
+                jsonFormatters.ForEach(f => f.SupportedMediaTypes.Add("application/csp-report"));
+            })
                 .AddRazorPagesOptions(options =>
                 {
                     options.Conventions.AuthorizePage("/Basket/Checkout");
@@ -156,7 +159,7 @@ namespace Microsoft.eShopWeb.Web
             {
                 var existingUserManager = scope.ServiceProvider
                     .GetService<UserManager<ApplicationUser>>();
-                if(existingUserManager == null)
+                if (existingUserManager == null)
                 {
                     services.AddIdentity<ApplicationUser, IdentityRole>()
                         .AddDefaultUI(UIFramework.Bootstrap4)
@@ -172,7 +175,7 @@ namespace Microsoft.eShopWeb.Web
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
                 options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
+                options.MinimumSameSitePolicy = AspNetCore.Http.SameSiteMode.None;
             });
             services.ConfigureApplicationCookie(options =>
             {
@@ -215,7 +218,6 @@ namespace Microsoft.eShopWeb.Web
                 app.UseDeveloperExceptionPage();
                 app.UseShowAllServicesMiddleware();
                 app.UseDatabaseErrorPage();
-                app.UseBrowserLink();
             }
             else
             {
@@ -238,6 +240,16 @@ namespace Microsoft.eShopWeb.Web
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
+
+            app.Use(async (ctx, next) =>
+            {
+                //TODO: CSP is disabled
+                //ctx.Response.Headers.Add("Content-Security-Policy",
+                //                         "default-src 'self'; report-uri /cspreport");
+                //TODO: browser embedded xss protection is disabled
+                ctx.Response.Headers.Add("x-xss-protection", "0");
+                await next();
             });
 
             app.UseMvc(routes =>
