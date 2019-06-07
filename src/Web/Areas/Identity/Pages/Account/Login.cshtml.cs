@@ -78,7 +78,7 @@ namespace Microsoft.eShopWeb.Web.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
-                    return LocalRedirect(returnUrl);
+                    return RedirectToLocal(returnUrl); //TODO: redirecting any url without security check causes open redirect vulnerability
                 }
                 if (result.RequiresTwoFactor)
                 {
@@ -98,6 +98,18 @@ namespace Microsoft.eShopWeb.Web.Areas.Identity.Pages.Account
 
             // If we got this far, something failed, redisplay form
             return Page();
+        }
+
+        private IActionResult RedirectToLocal(string returnUrl)
+        {
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            else
+            {
+                return RedirectToPage("/Index");
+            }
         }
     }
 }
