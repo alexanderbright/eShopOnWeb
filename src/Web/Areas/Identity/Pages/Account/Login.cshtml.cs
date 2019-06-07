@@ -78,7 +78,7 @@ namespace Microsoft.eShopWeb.Web.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
-                    return RedirectToLocal(returnUrl); //TODO: redirecting any url without security check causes open redirect vulnerability
+                    return Redirect(returnUrl); //TODO: redirecting any url without security check causes open redirect vulnerability
                 }
                 if (result.RequiresTwoFactor)
                 {
