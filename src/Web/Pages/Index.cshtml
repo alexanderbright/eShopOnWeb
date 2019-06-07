@@ -11,17 +11,26 @@
 <section class="esh-catalog-filters">
     <div class="container">
         <form method="get">
-            <label class="esh-catalog-label" data-title="brand">
+            <label class="esh-catalog-label catalog-dropdown" data-title="brand">
                 <select asp-for="@Model.CatalogModel.BrandFilterApplied" asp-items="@Model.CatalogModel.Brands" class="esh-catalog-filter"></select>
             </label>
-            <label class="esh-catalog-label" data-title="type">
+            <label class="esh-catalog-label catalog-dropdown" data-title="type">
                 <select asp-for="@Model.CatalogModel.TypesFilterApplied" asp-items="@Model.CatalogModel.Types" class="esh-catalog-filter"></select>
+            </label>
+            <label class="esh-catalog-label" data-title="keyword">
+                <input class="esh-catalog-input" type="text" placeholder="Search" asp-for="@Model.CatalogModel.Query" />
             </label>
             <input class="esh-catalog-send" type="image" src="images/arrow-right.svg" />
         </form>
     </div>
 </section>
 <div class="container">
+    @if (!string.IsNullOrEmpty(Model.CatalogModel.Query))
+    {
+        <div class="esh-catalog-items row">
+            SEARCH RESULTS FOR '@Html.Raw(Model.CatalogModel.Query)'
+        </div>
+    }
     @if (Model.CatalogModel.CatalogItems.Any())
     {
         <partial name="_pagination" for="CatalogModel.PaginationInfo" />

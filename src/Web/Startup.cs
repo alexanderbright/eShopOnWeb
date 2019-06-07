@@ -21,6 +21,7 @@ using Microsoft.eShopWeb.Web.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
@@ -33,6 +34,8 @@ namespace Microsoft.eShopWeb.Web
     public class Startup
     {
         private IServiceCollection _services;
+
+        public static ILoggerFactory MyLoggerFactory;
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -43,17 +46,17 @@ namespace Microsoft.eShopWeb.Web
         public void ConfigureDevelopmentServices(IServiceCollection services)
         {
             // use in-memory database
-            ConfigureInMemoryDatabases(services);
+            //ConfigureInMemoryDatabases(services);
 
             // use real database
-            // ConfigureProductionServices(services);
+             ConfigureProductionServices(services);
         }
 
         private void ConfigureInMemoryDatabases(IServiceCollection services)
         {
             // use in-memory database
             services.AddDbContext<CatalogContext>(c =>
-                c.UseInMemoryDatabase("Catalog"));
+                 c.UseInMemoryDatabase("Catalog"));
 
             // Add Identity DbContext
             services.AddDbContext<AppIdentityDbContext>(options =>
@@ -68,7 +71,9 @@ namespace Microsoft.eShopWeb.Web
             // Requires LocalDB which can be installed with SQL Server Express 2016
             // https://www.microsoft.com/en-us/download/details.aspx?id=54284
             services.AddDbContext<CatalogContext>(c =>
-                c.UseSqlServer(Configuration.GetConnectionString("CatalogConnection")));
+                c.UseLoggerFactory(MyLoggerFactory)
+                 .EnableSensitiveDataLogging()
+                 .UseSqlServer(Configuration.GetConnectionString("CatalogConnection")));
 
             // Add Identity DbContext
             services.AddDbContext<AppIdentityDbContext>(options =>
@@ -210,6 +215,7 @@ namespace Microsoft.eShopWeb.Web
                 app.UseDeveloperExceptionPage();
                 app.UseShowAllServicesMiddleware();
                 app.UseDatabaseErrorPage();
+                app.UseBrowserLink();
             }
             else
             {

@@ -29,6 +29,31 @@
   .esh-catalog-filter option {
     background-color: #00A69C; }
 
+.esh-catalog-input {
+  -webkit-appearance: none;
+  background-color: transparent;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #00d9cc;
+  color: #FFFFFF;
+  margin-right: 1rem;
+  margin-top: .5rem;
+  min-width: 140px;
+  outline-color: #83D01B;
+  padding-bottom: 0;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-top: 1.5rem; }
+  .esh-catalog-input::-webkit-input-placeholder {
+    /* Edge */
+    color: #FFFFFF;
+    opacity: 0.5; }
+  .esh-catalog-input:-ms-input-placeholder {
+    /* Internet Explorer 10-11 */
+    color: #FFFFFF; }
+  .esh-catalog-input::placeholder {
+    color: #FFFFFF; }
+
 .esh-catalog-label {
   display: inline-block;
   position: relative;
@@ -42,7 +67,7 @@
     position: absolute;
     text-transform: uppercase;
     z-index: 1; }
-  .esh-catalog-label::after {
+  .esh-catalog-label.catalog-dropdown::after {
     background-image: url("../../images/arrow-down.png");
     content: '';
     height: 7px;
