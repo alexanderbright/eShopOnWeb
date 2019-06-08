@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Microsoft.eShopWeb.Infrastructure.Identity;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Microsoft.eShopWeb.Infrastructure.Data
 {
@@ -16,11 +17,12 @@ namespace Microsoft.eShopWeb.Infrastructure.Data
             _dbContext = dbContext;
         }
 
-        public Task<ApplicationUser> GetByName(string userName)
+        public async Task<ApplicationUser> GetByName(string userName)
         {
             //TODO: SQL concatenation with user strings causes SQL Injection
             //it's better to use string interpolation which will parametrise SQL
-            return _dbContext.Users.FromSql("SELECT TOP 1 * FROM [AspNetUsers] WHERE [UserName] = '" + userName + "'").FirstOrDefaultAsync();
+            var users = await  _dbContext.Users.FromSql("SELECT TOP 1 * FROM [AspNetUsers] WHERE [UserName] = '" + userName + "'").ToListAsync();
+            return users.FirstOrDefault();
         }
     }
 }
