@@ -13,7 +13,7 @@ namespace Microsoft.eShopWeb.Web.Services
         private readonly CatalogViewModelService _catalogViewModelService;
         private static readonly string _brandsKey = "brands";
         private static readonly string _typesKey = "types";
-        private static readonly string _itemsKeyTemplate = "items-{0}-{1}-{2}-{3}";
+        private static readonly string _itemsKeyTemplate = "items-{0}-{1}-{2}-{3}-{4}";
         private static readonly TimeSpan _defaultCacheDuration = TimeSpan.FromSeconds(30);
 
         public CachedCatalogViewModelService(IMemoryCache cache,
@@ -32,13 +32,13 @@ namespace Microsoft.eShopWeb.Web.Services
                     });
         }
 
-        public async Task<CatalogIndexViewModel> GetCatalogItems(int pageIndex, int itemsPage, int? brandId, int? typeId)
+        public async Task<CatalogIndexViewModel> GetCatalogItems(int pageIndex, int itemsPage, int? brandId, int? typeId, string query)
         {
-            string cacheKey = String.Format(_itemsKeyTemplate, pageIndex, itemsPage, brandId, typeId);
+            string cacheKey = String.Format(_itemsKeyTemplate, pageIndex, itemsPage, brandId, typeId, query);
             return await _cache.GetOrCreateAsync(cacheKey, async entry =>
             {
                 entry.SlidingExpiration = _defaultCacheDuration;
-                return await _catalogViewModelService.GetCatalogItems(pageIndex, itemsPage, brandId, typeId);
+                return await _catalogViewModelService.GetCatalogItems(pageIndex, itemsPage, brandId, typeId, query);
             });
         }
 

@@ -37,13 +37,13 @@ namespace Microsoft.eShopWeb.Web.Services
             _uriComposer = uriComposer;
         }
 
-        public async Task<CatalogIndexViewModel> GetCatalogItems(int pageIndex, int itemsPage, int? brandId, int? typeId)
+        public async Task<CatalogIndexViewModel> GetCatalogItems(int pageIndex, int itemsPage, int? brandId, int? typeId, string query)
         {
             _logger.LogInformation("GetCatalogItems called.");
 
             var filterSpecification = new CatalogFilterSpecification(brandId, typeId);
             var filterPaginatedSpecification =
-                new CatalogFilterPaginatedSpecification(itemsPage * pageIndex, itemsPage, brandId, typeId);
+                new CatalogFilterPaginatedSpecification(itemsPage * pageIndex, itemsPage, brandId, typeId, query);
 
             // the implementation below using ForEach and Count. We need a List.
             var itemsOnPage = await _itemRepository.ListAsync(filterPaginatedSpecification);
@@ -73,7 +73,8 @@ namespace Microsoft.eShopWeb.Web.Services
                     ItemsPerPage = itemsOnPage.Count,
                     TotalItems = totalItems,
                     TotalPages = int.Parse(Math.Ceiling(((decimal)totalItems / itemsPage)).ToString())
-                }
+                },
+                Query = query
             };
 
             vm.PaginationInfo.Next = (vm.PaginationInfo.ActualPage == vm.PaginationInfo.TotalPages - 1) ? "is-disabled" : "";
