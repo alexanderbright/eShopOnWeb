@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Web.Controllers
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class CspReportingController : Controller
     {
         private readonly ILogger<CspReportingController> _logger;
